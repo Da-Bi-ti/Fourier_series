@@ -2,9 +2,12 @@ from __future__ import division
 from sympy import *
 import tkinter as tk
 
-#####一般週期函數#####
+
 t = symbols('t',commutative=True)
 n = symbols("n",commutative=True)
+precise = 3 #係數保留至小數點下n位
+    
+#####一般週期函數#####   
 def fourier_series(f=4-0.8*abs(t-5),T=10):
     try:
         #讀取週期、函數
@@ -13,20 +16,17 @@ def fourier_series(f=4-0.8*abs(t-5),T=10):
         print("f=",f,"  T=",T)
         ######
 
-        an = (2/T) * integrate(f * cos(n*t), (t, 0, T))
-        bn = (2/T) * integrate(f * sin(n*t), (t, 0, T))
-        an=simplify(an)
-        bn=simplify(bn)
-        return (an,bn)
+        an = (2/T) * integrate(f * cos(n*(2*pi/T)*t), (t, 0, T))
+        bn = (2/T) * integrate(f * sin(n*(2*pi/T)*t), (t, 0, T))
+        global simplified_an 
+        global simplified_bn
+        simplified_an= simplify_logic(an)
+        simplified_bn= simplify_logic(bn)
+        return(simplified_an,simplified_bn)
         
     except Exception as e:
         print(e)
         
-       
-if __name__ == '__main__':
-    fourier_series()
-
-
 
 ###以奇偶函數展開###
 """
@@ -58,4 +58,25 @@ for n in range(0,4):
     print("an=",an.evalf())
     print("bn=",bn.simplify(),"\n")
 """
+#####計算前k項數值#######
+def num_coefficient(k):
+    an_list=[]
+    bn_list=[]
+    for i in range(k+1):
+        an_list.append(round(simplified_an.subs(n,i).evalf(),precise))
+        bn_list.append(round(simplified_bn.subs(n,i).evalf(),precise))
+    
+    return(an_list,bn_list)
+    
+    
+    
+if __name__ == '__main__':
 
+    print(fourier_series())
+    print(num_coefficient(3))  
+    
+    
+    
+    
+    
+    

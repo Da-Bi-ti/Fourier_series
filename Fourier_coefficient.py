@@ -17,6 +17,15 @@ def fourier_series(f=4-0.8*abs(t-5),T=10):
         ######
 
         an = (2/T) * integrate(f * cos(n*(2*pi/T)*t), (t, 0, T))
+        # 取出每个分段
+        pw = an.args[1] if isinstance(an.args[1], Piecewise) else None
+        # 檢查
+        if pw:
+            pieces = list(pw.args)
+            # 例如：修改第二段的值
+            pieces[1] = (pieces[1][0]/2, pieces[1][1])  #更正首項為二分之一
+            pw_new = Piecewise(*pieces)
+            an = an.args[0] * pw_new
         bn = (2/T) * integrate(f * sin(n*(2*pi/T)*t), (t, 0, T))
         simplified_an= simplify_logic(an)
         simplified_bn= simplify_logic(bn)
@@ -38,6 +47,14 @@ def half_range(f,T):
     try:
         #公式
         an = 2*(2/T) * integrate(f * cos(n*w*t), (t, 0, T/2))
+        pw = an.args[1] if isinstance(an.args[1], Piecewise) else None #剔除公式係數(如果有)
+        # 檢查
+        if pw:
+            pieces = list(pw.args) #pw.args回傳tuple:((函數1，區間1),(函數2，區間2)...)
+            pieces[1] = (pieces[1][0]/2, pieces[1][1])  #更正首項為二分之一
+            pw_new = Piecewise(*pieces)
+            an = an.args[0] * pw_new
+        
         bn = 2*(2/T) * integrate(f * sin(n*w*t), (t, 0, T/2))
         simplified_an= simplify_logic(an)
         simplified_bn= simplify_logic(bn)
@@ -67,9 +84,15 @@ def num_coefficient(an,bn,k):
             bn_list.append(round(bn.subs(n,i).evalf(),precise))
         
         return(an_list,bn_list)
+    
+    except TypeError :
+        for i in range(k+1):
+            an_list.append(an.subs(n,i))
+            bn_list.append(bn.subs(n,i))
+        return(an_list,bn_list)
     except Exception as e:
         print(e)
-    
+
     
     
 if __name__ == '__main__':

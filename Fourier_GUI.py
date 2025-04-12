@@ -108,35 +108,31 @@ def num_string():
     global bn
 
     (num_a,num_b)=FC.num_coefficient(an,bn,N)
-    
     an_str=f"{num_a[0]}"
     bn_str=f"{num_b[0]}"
     #an
-    for index,value in enumerate(num_a[1:-1],start=1):
-        if value>=0 :
-            an_str+=f"+{value}*cos({index}*{omega}t)"
-        else:
-            an_str+=f"{value}*cos({index}*{omega}t)"
-    if num_a[N]>=0 :
-        an_str+=f"+{num_a[N]}*cos({N}*{omega}t)+......"
-    else:
-        an_str+=f"{num_a[N]}*cos({N}*{omega}t)+......"
+    for index, value in enumerate(num_a[1:], start=1):
+        # 使用 sympy 的 is_nonnegative 判斷正號（可能為 None）
+        sign = "+"
+        if hasattr(value, "is_nonnegative") and value.is_nonnegative is False:
+            sign = ""  # 已經有負號就不用加 +
+        an_str += f"{sign}{value}*cos({index}*{omega}t)"
+    an_str += "+......"
     #bn    
-    for index,value in enumerate(num_b[1:-1],start=1):
-        if value>=0 :
-            bn_str+=f"+{value}*sin({index}*{omega}t)"
-        else:
-            bn_str+=f"{value}*sin({index}*{omega}t)"
-    if num_a[N]>=0 :
-        bn_str+=f"+{num_a[N]}*sin({N}*{omega}t)+......"
-    else:
-        bn_str+=f"{num_a[N]}*sin({N}*{omega}t)+......"
+    for index, value in enumerate(num_b[1:], start=1):
+        # 使用 sympy 的 is_nonnegative 判斷正號（可能為 None）
+        sign = "+"
+        if hasattr(value, "is_nonnegative") and value.is_nonnegative is False:
+            sign = ""  # 已經有負號就不用加 +
+        bn_str += f"{sign}{value}*sin({index}*{omega}t)"
+    bn_str +="+......"
     return (an_str,bn_str)
 
 
 #######piecewise########
-
+"""
 text = tk.Text(piece_frame, height=5, width=50)  # 放入多行輸入框
+text.insert("0.0" , "Piecewise((220, 0<t and t<pi),(0,else))")
 text.pack()
 tk.Label(piece_frame, text="輸入週期:").pack()
 Time = tk.StringVar()
@@ -144,7 +140,7 @@ T_entry = tk.Entry(piece_frame, textvariable=Time, width=10)
 T_entry.insert(0, "10")  # 預設週期
 T_entry.pack()
 
-
+"""
 
 
 # 預設顯示一般函數輸入框

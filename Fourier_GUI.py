@@ -32,10 +32,10 @@ piece_btn=tk.Radiobutton(root, text='Piecewise smooth function',variable=fn_type
 piece_btn.pack()
 #展開類型
 exp_type = tk.StringVar()
-full_btn = tk.Radiobutton(root, text='fourier expandsion',variable=exp_type, value='fourier expandsion',command=switch_input_mode)
+full_btn = tk.Radiobutton(root, text='fourier expandsion',variable=exp_type, value='fourier expandsion')
 full_btn.pack()
 full_btn.select()
-half_btn=tk.Radiobutton(root, text='half_range expandsion',variable=exp_type, value='half_range expandsion',command=switch_input_mode)
+half_btn=tk.Radiobutton(root, text='half_range expandsion',variable=exp_type, value='half_range expandsion')
 half_btn.pack()
 #########輸入標籤###########
 #####smooth function######
@@ -66,8 +66,12 @@ num_label.pack()
 
 # 顯示 Fourier 係數公式
 def calculate_fourier():
-    f = f_in.get()
-    T = Time.get()
+    if fn_type.get() == "Smooth function":
+        f = f_in.get()
+        T = Time.get()
+    elif fn_type.get() == "Piecewise smooth function":
+        f = text.get("1.0", "end-1c")
+        T = Time_piece.get()
     tp = exp_type.get()
     try:
         global an
@@ -116,7 +120,7 @@ def num_string():
         sign = "+"
         if hasattr(value, "is_nonnegative") and value.is_nonnegative is False:
             sign = ""  # 已經有負號就不用加 +
-        an_str += f"{sign}{value}*cos({index}*{omega}t)"
+        an_str += f"{sign}{value}*cos({index}*{omega}*t)"
     an_str += "+......"
     #bn    
     for index, value in enumerate(num_b[1:], start=1):
@@ -124,23 +128,22 @@ def num_string():
         sign = "+"
         if hasattr(value, "is_nonnegative") and value.is_nonnegative is False:
             sign = ""  # 已經有負號就不用加 +
-        bn_str += f"{sign}{value}*sin({index}*{omega}t)"
+        bn_str += f"{sign}{value}*sin({index}*{omega}*t)"
     bn_str +="+......"
     return (an_str,bn_str)
 
 
 #######piecewise########
-"""
 text = tk.Text(piece_frame, height=5, width=50)  # 放入多行輸入框
-text.insert("0.0" , "Piecewise((220, 0<t and t<pi),(0,else))")
+text.insert("0.0" , "Piecewise((220, (0<t) & (t<pi/2)),(0,True))")
 text.pack()
 tk.Label(piece_frame, text="輸入週期:").pack()
-Time = tk.StringVar()
-T_entry = tk.Entry(piece_frame, textvariable=Time, width=10)
-T_entry.insert(0, "10")  # 預設週期
+Time_piece = tk.StringVar()
+T_entry = tk.Entry(piece_frame, textvariable=Time_piece, width=10)
+T_entry.insert(0,"2*pi")
 T_entry.pack()
 
-"""
+
 
 
 # 預設顯示一般函數輸入框

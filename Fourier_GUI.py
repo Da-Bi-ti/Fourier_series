@@ -4,6 +4,8 @@ from sympy import sympify,pi,Function
 
 an = Function("an")
 bn = Function("bn")
+f = ""
+T = ""
 # 創建 GUI
 root = tk.Tk()
 root.title('Fourier expand')
@@ -19,7 +21,7 @@ def switch_input_mode():
         smooth_frame.pack()
         piece_frame.pack_forget()
         
-    else:
+    elif fn_type.get() == "Piecewise smooth function":
 
         smooth_frame.pack_forget()
         piece_frame.pack()
@@ -30,6 +32,7 @@ smooth_btn.pack()
 smooth_btn.select()
 piece_btn=tk.Radiobutton(root, text='Piecewise smooth function',variable=fn_type, value='Piecewise smooth function',command=switch_input_mode)
 piece_btn.pack()
+
 #展開類型
 exp_type = tk.StringVar()
 full_btn = tk.Radiobutton(root, text='fourier expandsion',variable=exp_type, value='fourier expandsion')
@@ -62,10 +65,19 @@ result_label_b.pack()
 num_label = tk.Label(root, text="f= ",font=20)
 num_label.pack()
 
-
+#######piecewise########
+text = tk.Text(piece_frame, height=5, width=50)  # 放入多行輸入框
+text.insert("0.0" , "Piecewise((220, (0<t) & (t<pi/2)),(0,True))")
+text.pack()
+tk.Label(piece_frame, text="輸入週期:").pack()
+Time_piece = tk.StringVar()
+T_entry = tk.Entry(piece_frame, textvariable=Time_piece, width=10)
+T_entry.insert(0,"2*pi")
+T_entry.pack()
 
 # 顯示 Fourier 係數公式
 def calculate_fourier():
+    global f,T
     if fn_type.get() == "Smooth function":
         f = f_in.get()
         T = Time.get()
@@ -74,8 +86,7 @@ def calculate_fourier():
         T = Time_piece.get()
     tp = exp_type.get()
     try:
-        global an
-        global bn 
+        global an,bn
         if tp =="fourier expandsion":
             an, bn = FC.fourier_series(f, T)  # 取得回傳值
         elif tp =="half_range expandsion":
@@ -104,13 +115,12 @@ N_entry.pack()
 ####係數數值#####
 
 def num_string():
+    global an,bn
+    global f,T
     N = int(Num.get())
-    T = Time.get()
-    T = sympify(T)
-    omega=2*pi/T
-    global an
-    global bn
-
+    T_sym = sympify(T)
+    omega=2*pi/T_sym
+    
     (num_a,num_b)=FC.num_coefficient(an,bn,N)
     an_str=f"{num_a[0]}"
     bn_str=f"{num_b[0]}"
@@ -131,19 +141,6 @@ def num_string():
         bn_str += f"{sign}{value}*sin({index}*{omega}*t)"
     bn_str +="+......"
     return (an_str,bn_str)
-
-
-#######piecewise########
-text = tk.Text(piece_frame, height=5, width=50)  # 放入多行輸入框
-text.insert("0.0" , "Piecewise((220, (0<t) & (t<pi/2)),(0,True))")
-text.pack()
-tk.Label(piece_frame, text="輸入週期:").pack()
-Time_piece = tk.StringVar()
-T_entry = tk.Entry(piece_frame, textvariable=Time_piece, width=10)
-T_entry.insert(0,"2*pi")
-T_entry.pack()
-
-
 
 
 # 預設顯示一般函數輸入框
